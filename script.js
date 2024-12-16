@@ -1,5 +1,5 @@
-let colors = ['', 'cyan', 'yellow', 'magenta', 'blue', 'orange', 'lime', 'red'];
-let pieces = [
+let colors = ['', 'cyan', 'yellow', 'magenta', 'blue', 'orange', 'lime', 'red', 'purple', 'green', 'black', 'gray', 'brown', 'pink', 'turquoise', 'lightblue', 'seagreen', 'darkkhaki', 'chocolate', 'salmon']
+const pieces = [
   [ // I
     [0, 1, 0, 0],
     [0, 1, 0, 0],
@@ -34,6 +34,64 @@ let pieces = [
     [7, 7, 0],
     [0, 7, 7],
     [0, 0, 0],
+  ],
+];
+const rarePieces = [
+  [ // dot
+    [8],
+  ],
+  [ // plus
+    [0, 9, 0],
+    [9, 9, 9],
+    [0, 9, 0],
+  ],
+  [ // dash
+    [10, 10],
+    [0, 0],
+  ],
+  [ // corner
+    [11, 0],
+    [11, 11],
+  ],
+  [ // minus
+    [0, 12, 0],
+    [0, 12, 0],
+    [0, 12, 0],
+  ],
+  [ // C 
+    [0, 13, 13],
+    [0, 13, 0],
+    [0, 13, 13],
+  ],
+  [ // T
+    [14, 14, 14],
+    [0, 14, 0],
+    [0, 14, 0],
+  ],
+  [ // Z
+    [15, 15, 0],
+    [0, 15, 0],
+    [0, 15, 15],
+  ],
+  [ // bar
+    [16, 16, 16],
+    [16, 16, 16],
+    [0, 0, 0],
+  ],
+  [ // big corner
+    [17, 0, 0],
+    [17, 0, 0],
+    [17, 17, 17],
+  ],
+  [ // left key
+    [0, 18, 0],
+    [18, 18, 18],
+    [18, 0, 0],
+  ],
+  [ // right key
+    [0, 19, 0],
+    [19, 19, 19],
+    [0, 0, 19],
   ],
 ];
 let piece = getNextPiece();
@@ -121,8 +179,10 @@ function evaluateLines() {
 }
 
 function getNextPiece() {
-  const index = Math.floor(Math.random() * pieces.length);
-  let shape = pieces[index];
+  const isRare = Math.random() < 0.1;
+  const pool = isRare ? rarePieces : pieces;
+  const index = Math.floor(Math.random() * pool.length);
+  let shape = pool[index];
   const rotations = Math.floor(Math.random() * 4);
 
   for (let i = 0; i < rotations; i++) {
@@ -242,8 +302,8 @@ function canRotate() {
   for (const shift of shifts) {
     try {
       const pieceProjection = getPieceProjection(
-        rotatedShape, 
-        piece.x + shift.x, 
+        rotatedShape,
+        piece.x + shift.x,
         piece.y + shift.y
       );
       if (!doesIntersect(pieceProjection, state)) return shift;
