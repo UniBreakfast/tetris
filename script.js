@@ -140,12 +140,13 @@ const ctx = canvas.getContext("2d");
 let blockSize = 40;
 let stepInterval = 400;
 let intervalId = null;
+let value = 1;
 
 canvas.width = blockSize * 10;
 canvas.height = blockSize * 20;
 canvas.style = `
   display: block;
-  margin: 30px auto;
+  margin: auto;
   border: 1px solid black;
 `;
 body.append(canvas);
@@ -205,13 +206,24 @@ function tick() {
 }
 
 function evaluateLines() {
+  let noLines = true;
   for (let i = 0; i < state.length; i++) {
     const row = state[i];
     if (row.every((cell) => cell !== 0)) {
       state.splice(i, 1);
       state.unshift(Array(10).fill(0));
       i--;
+      score.value = Number(score.value) + value;
+      value *= 2;
+      multiplier.hidden = false;
+      mult.value = value;
+      noLines = false;
     }
+  }
+  if (noLines && value > 1) {
+    value -= Math.ceil(value / 4);
+    mult.value = value;
+    if (value === 1) multiplier.hidden = true;
   }
 }
 
