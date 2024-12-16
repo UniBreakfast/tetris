@@ -1,4 +1,5 @@
-let colors = ['', 'cyan', 'yellow', 'magenta', 'blue', 'orange', 'lime', 'red', 'purple', 'green', 'black', 'gray', 'brown', 'pink', 'turquoise', 'lightblue', 'seagreen', 'darkkhaki', 'chocolate', 'salmon', 'navy', 'gold', 'deeppink', 'springgreen', 'tomato', 'plum']
+const colors = ['', 'cyan', 'yellow', 'magenta', 'blue', 'orange', 'lime', 'red', 'purple', 'green', 'lightgreen', 'gray', 'brown', 'pink', 'turquoise', 'lightblue', 'seagreen', 'darkkhaki', 'chocolate', 'salmon', 'navy', 'gold', 'deeppink', 'springgreen', 'tomato', 'plum'];
+colors[-1] = 'black';
 const shapes = [
   [ // I
     [0, 1, 0, 0],
@@ -129,6 +130,7 @@ const rareShapes = [
     [25, 25, 25],
   ]
 ];
+const mole = [[-1]];
 let piece = getNextPiece();
 let state = getEmptyState();
 
@@ -189,7 +191,7 @@ function getEmptyState() {
 }
 
 function tick() {
-  if (canShift("down")) {
+  if (canShift("down") || piece.shape === mole && canBurrow()) {
     move("down");
   } else {
     if (!piece.moved) return end();
@@ -214,6 +216,12 @@ function evaluateLines() {
 }
 
 function getNextPiece() {
+  const isMole = Math.random() < 0.02;
+
+  if (isMole) {
+    const shape = mole;
+    return { shape, x: getInitialX(shape), y: getInitialY(shape), moved: false };
+  }
   const isRare = Math.random() < 0.1;
   const pool = isRare ? rareShapes : shapes;
   const index = Math.floor(Math.random() * pool.length);
@@ -347,6 +355,11 @@ function canRotate() {
   return false;
 }
 
+function canBurrow() {
+  return state.slice(piece.y + 1).map(row => row[piece.x])
+    .some(filled => !filled);
+}
+
 function move(direction) {
   const { x, y } = getShift(direction);
   piece.x += x;
@@ -358,6 +371,7 @@ function rotate(shift) {
   piece.x += shift.x;
   piece.y += shift.y;
   piece.shape = rotateShape(piece.shape);
+  piece.moved = true;
 }
 
 function freeze() {
