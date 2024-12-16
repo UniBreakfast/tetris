@@ -1,5 +1,5 @@
-let colors = ['', 'cyan', 'yellow', 'magenta', 'blue', 'orange', 'lime', 'red', 'purple', 'green', 'black', 'gray', 'brown', 'pink', 'turquoise', 'lightblue', 'seagreen', 'darkkhaki', 'chocolate', 'salmon']
-const pieces = [
+let colors = ['', 'cyan', 'yellow', 'magenta', 'blue', 'orange', 'lime', 'red', 'purple', 'green', 'black', 'gray', 'brown', 'pink', 'turquoise', 'lightblue', 'seagreen', 'darkkhaki', 'chocolate', 'salmon', 'navy', 'gold', 'deeppink', 'springgreen', 'tomato', 'plum']
+const shapes = [
   [ // I
     [0, 1, 0, 0],
     [0, 1, 0, 0],
@@ -36,7 +36,7 @@ const pieces = [
     [0, 0, 0],
   ],
 ];
-const rarePieces = [
+const rareShapes = [
   [ // dot
     [8],
   ],
@@ -93,6 +93,41 @@ const rarePieces = [
     [19, 19, 19],
     [0, 0, 19],
   ],
+  [ // long line
+    [0, 0, 20, 0, 0],
+    [0, 0, 20, 0, 0],
+    [0, 0, 20, 0, 0],
+    [0, 0, 20, 0, 0],
+    [0, 0, 20, 0, 0],
+  ],
+  [ // long L
+    [0, 21, 0, 0],
+    [0, 21, 0, 0],
+    [0, 21, 0, 0],
+    [0, 21, 21, 0],
+  ],
+  [ // long J
+    [0, 0, 22, 0],
+    [0, 0, 22, 0],
+    [0, 0, 22, 0],
+    [0, 22, 22, 0],
+  ],
+  [ // left drop
+    [0, 23, 0],
+    [0, 23, 23],
+    [0, 23, 23],
+  ],
+  [ // right drop
+    [0, 24, 0],
+    [24, 24, 0],
+    [24, 24, 0],
+  ],
+  [
+    // triangle
+    [25, 0, 0],
+    [25, 25, 0],
+    [25, 25, 25],
+  ]
 ];
 let piece = getNextPiece();
 let state = getEmptyState();
@@ -180,7 +215,7 @@ function evaluateLines() {
 
 function getNextPiece() {
   const isRare = Math.random() < 0.1;
-  const pool = isRare ? rarePieces : pieces;
+  const pool = isRare ? rareShapes : shapes;
   const index = Math.floor(Math.random() * pool.length);
   let shape = pool[index];
   const rotations = Math.floor(Math.random() * 4);
