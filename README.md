@@ -1,4 +1,4 @@
-# tetris
+# [tetris](https://github.com/UniBreakfast/tetris)
 
 ## Tetris with custom features
 
