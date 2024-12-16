@@ -67,8 +67,16 @@ function handleKeyDown(e) {
   } else if (e.key === "ArrowDown" && canShift("down")) {
     move("down");
   } else if (e.key === "ArrowUp") {
-    piece = { ...piece, shape: rotate(piece.shape) };
+    const requiredShift = canRotate();
+
+    if (requiredShift) {
+      rotate(requiredShift);
+    }
+  } else {
+    return;
   }
+
+  draw();
 }
 
 function start() {
@@ -94,19 +102,31 @@ function tick() {
     if (!piece.moved) return end();
 
     freeze();
+    evaluateLines();
     piece = getNextPiece();
   }
 
   draw();
 }
 
+function evaluateLines() {
+  for (let i = 0; i < state.length; i++) {
+    const row = state[i];
+    if (row.every((cell) => cell !== 0)) {
+      state.splice(i, 1);
+      state.unshift(Array(10).fill(0));
+      i--;
+    }
+  }
+}
+
 function getNextPiece() {
   const index = Math.floor(Math.random() * pieces.length);
   let shape = pieces[index];
   const rotations = Math.floor(Math.random() * 4);
-  
+
   for (let i = 0; i < rotations; i++) {
-    shape = rotate(shape);
+    shape = rotateShape(shape);
   }
   return { shape, x: getInitialX(shape), y: getInitialY(shape), moved: false };
 }
@@ -130,7 +150,7 @@ function getActualWidth(shape) {
       if (shape[j][i]) break out;
     }
     width--;
-    
+
     if (width === 0) return width;
   }
 
@@ -151,7 +171,7 @@ function getStartXShift(shape) {
     for (let j = 0; j < shape.length; j++) {
       if (shape[j][i]) return shift;
     }
-    
+
     shift++;
   }
 
@@ -165,14 +185,14 @@ function getStartYShift(shape) {
     for (let j = 0; j < shape[0].length; j++) {
       if (shape[i][j]) return shift;
     }
-    
+
     shift++;
   }
 
   return shift;
 }
 
-function rotate(shape) {
+function rotateShape(shape) {
   const rotated = [];
   for (let i = 0; i < shape[0].length; i++) {
     rotated.push([]);
@@ -198,7 +218,7 @@ function getShift(direction) {
 
 function canShift(direction) {
   try {
-    const {x, y} = getShift(direction);
+    const { x, y } = getShift(direction);
     const pieceProjection = getPieceProjection(piece.shape, piece.x + x, piece.y + y);
     return !doesIntersect(pieceProjection, state);
   } catch (error) {
@@ -206,11 +226,43 @@ function canShift(direction) {
   }
 }
 
+function canRotate() {
+  const shifts = [
+    { x: 0, y: 0 },
+    { x: 1, y: 0 },
+    { x: -1, y: 0 },
+    { x: 0, y: -1 },
+    { x: 1, y: -1 },
+    { x: -1, y: -1 },
+    { x: 2, y: 0 },
+    { x: -2, y: 0 },
+  ]
+  const rotatedShape = rotateShape(piece.shape);
+
+  for (const shift of shifts) {
+    try {
+      const pieceProjection = getPieceProjection(
+        rotatedShape, 
+        piece.x + shift.x, 
+        piece.y + shift.y
+      );
+      if (!doesIntersect(pieceProjection, state)) return shift;
+    } catch { }
+  }
+  return false;
+}
+
 function move(direction) {
   const { x, y } = getShift(direction);
   piece.x += x;
   piece.y += y;
   piece.moved = true;
+}
+
+function rotate(shift) {
+  piece.x += shift.x;
+  piece.y += shift.y;
+  piece.shape = rotateShape(piece.shape);
 }
 
 function freeze() {

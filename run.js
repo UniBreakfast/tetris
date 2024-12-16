@@ -43,7 +43,7 @@ function getNextPiece() {
   const rotations = Math.floor(Math.random() * 4);
 
   for (let i = 0; i < rotations; i++) {
-    shape = rotate(shape);
+    shape = rotateShape(shape);
   }
   return { shape, x: getInitialX(shape), y: getInitialY(shape) };
 }
@@ -109,7 +109,7 @@ function getStartYShift(shape) {
   return shift;
 }
 
-function rotate(shape) {
+function rotateShape(shape) {
   const rotated = [];
   for (let i = 0; i < shape[0].length; i++) {
     rotated.push([]);
