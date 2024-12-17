@@ -1,4 +1,5 @@
-const score = document.getElementById("score");
+const scoreOutput = document.getElementById("score");
+const actualOutput = document.getElementById("actual");
 const glass = document.getElementById("glass");
 const reward = document.getElementById("reward");
 const multiplier = document.getElementById("multiplier");
@@ -150,6 +151,7 @@ let blockSize
 let stepInterval = 400;
 let intervalId = null;
 let value = 1;
+let score = 0;
 
 glass.ctx = glass.getContext("2d");
 next.ctx = next.getContext("2d");
@@ -180,7 +182,10 @@ function updateNextSizing() {
 }
 
 function handleKeyDown(e) {
-  if (e.key === "ArrowLeft" && canShift("left")) {
+  if (!pauseCover.hidden) {
+    togglePause();
+    handleKeyDown(e);
+  } else if (e.key === "ArrowLeft" && canShift("left")) {
     move("left");
   } else if (e.key === "ArrowRight" && canShift("right")) {
     move("right");
@@ -253,16 +258,34 @@ function evaluateLines() {
       state.splice(i, 1);
       state.unshift(Array(10).fill(0));
       i--;
-      score.value = Number(score.value) + value;
+      score += value;
       value *= 2;
-      multiplier.value = value;
       noLines = false;
+      updateScore();
     }
   }
   if (noLines && value > 1) {
     value -= Math.ceil(value / 4);
-    multiplier.value = value;
+    updateScore();
   }
+}
+
+function updateScore() {
+  scoreOutput.value = presentReadable(score);
+  actualOutput.value = score;
+  multiplier.value = presentReadable(value);
+}
+
+function presentReadable(score) {
+  const units = ['', 'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion', 'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion', 'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion', 'vigintillion'];
+  const values = [1, 1e3, 1e6, 1e9, 1e12, 1e15, 1e18, 1e21, 1e24, 1e27, 1e30, 1e33, 1e36, 1e39, 1e42, 1e45, 1e48, 1e51, 1e54, 1e57, 1e60];
+
+  for (let i = values.length - 1; i >= 0; i--) {
+    if (score >= values[i]) {
+      return +(score / values[i]).toFixed(1) + ' ' + units[i];
+    }
+  }
+  return score.toString();
 }
 
 function cropShape(shape) {
