@@ -1,0 +1,53 @@
+body {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-rows: 1fr 1fr;
+  margin: 0;
+  justify-content: center;
+  gap: 1vw;
+  place-items: center;
+  place-content: center;
+}
+
+h1 {
+  text-align: center;
+}
+
+canvas {
+  display: block;
+  margin: auto;
+
+  &#glass {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    height: 100vh;
+    box-shadow: 0 0 3px black;
+  }
+}
+
+h2#reward {
+  text-align: center;
+  grid-column: 1;
+}
+
+#pause {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(3px);
+  background-color: #6666;
+  pointer-events: none;
+  transition: 400ms;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &[hidden] {
+    opacity: 0;
+  }
+
+  h2 {
+    text-shadow: 0 0 2px white, 0 0 2px white, 
+      0 0 2px white, 0 0 2px white;
+    font-size: 10vmax;
+  }
+}

@@ -1,5 +1,15 @@
+const score = document.getElementById("score");
+const glass = document.getElementById("glass");
+const reward = document.getElementById("reward");
+const multiplier = document.getElementById("multiplier");
+const pauseCover = document.getElementById("pause");
+
+let columnCount = 10;
+let rowCount = 20;
 const colors = ['', 'cyan', 'yellow', 'magenta', 'blue', 'orange', 'lime', 'red', 'purple', 'green', 'lightgreen', 'gray', 'brown', 'pink', 'turquoise', 'lightblue', 'seagreen', 'darkkhaki', 'chocolate', 'salmon', 'navy', 'gold', 'deeppink', 'springgreen', 'tomato', 'plum'];
 colors[-1] = 'black';
+colors.line = '#777';
+
 const shapes = [
   [ // I
     [0, 1, 0, 0],
@@ -131,29 +141,43 @@ const rareShapes = [
   ]
 ];
 const mole = [[-1]];
+const lineRatio = 1/30;
 let piece = getNextPiece();
 let state = getEmptyState();
+let nextPiece = getNextPiece();
 
-const canvas = document.createElement("canvas");
-const ctx = canvas.getContext("2d");
-
-let blockSize = 40;
+let blockSize
 let stepInterval = 400;
 let intervalId = null;
 let value = 1;
 
-canvas.width = blockSize * 10;
-canvas.height = blockSize * 20;
-canvas.style = `
-  display: block;
-  margin: auto;
-  border: 1px solid black;
-`;
-body.append(canvas);
+glass.ctx = glass.getContext("2d");
+next.ctx = next.getContext("2d");
 
+onresize = updateSizing;
 onkeydown = handleKeyDown;
 
+updateSizing();
 start();
+
+function updateSizing() {
+  updateGlassSizing();
+  updateNextSizing();
+  drawNext();
+  draw();
+}
+
+function updateGlassSizing() {
+  blockSize = innerHeight / rowCount;
+  glass.width = blockSize * columnCount;
+  glass.height = blockSize * rowCount;
+}
+
+function updateNextSizing() {
+  const { width, height } = cropShape(nextPiece.shape);
+  next.width = blockSize * width;
+  next.height = blockSize * height;
+}
 
 function handleKeyDown(e) {
   if (e.key === "ArrowLeft" && canShift("left")) {
@@ -168,6 +192,10 @@ function handleKeyDown(e) {
     if (requiredShift) {
       rotate(requiredShift);
     }
+  } else if (e.key === "Space" || e.key === ' ') {
+    drop();
+  } else if (e.key === "Escape" || e.code === 'KeyP') {
+    togglePause();
   } else {
     return;
   }
@@ -179,14 +207,24 @@ function start() {
   intervalId = setInterval(tick, stepInterval);
 }
 
+function togglePause() {
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  } else {
+    start();
+  }
+  pauseCover.toggleAttribute('hidden');
+}
+
 function end() {
   clearInterval(intervalId);
 }
 
 function getEmptyState() {
   const state = [];
-  for (let i = 0; i < 20; i++) {
-    state.push(Array(10).fill(0));
+  for (let i = 0; i < rowCount; i++) {
+    state.push(Array(columnCount).fill(0));
   }
   return state;
 }
@@ -199,7 +237,9 @@ function tick() {
 
     freeze();
     evaluateLines();
-    piece = getNextPiece();
+    piece = nextPiece;
+    nextPiece = getNextPiece();
+    drawNext();
   }
 
   draw();
@@ -215,15 +255,26 @@ function evaluateLines() {
       i--;
       score.value = Number(score.value) + value;
       value *= 2;
-      multiplier.hidden = false;
-      mult.value = value;
+      multiplier.value = value;
       noLines = false;
     }
   }
   if (noLines && value > 1) {
     value -= Math.ceil(value / 4);
-    mult.value = value;
-    if (value === 1) multiplier.hidden = true;
+    multiplier.value = value;
+  }
+}
+
+function cropShape(shape) {
+  const width = getActualWidth(shape);
+  const height = getActualHeight(shape);
+  const xShift = getStartXShift(shape);
+  const yShift = getStartYShift(shape);
+
+  return {
+    width, height,
+    shape: shape.slice(yShift, yShift + height)
+      .map(row => row.slice(xShift, xShift + width)),
   }
 }
 
@@ -277,6 +328,28 @@ function getActualWidth(shape) {
   }
 
   return width;
+}
+
+function getActualHeight(shape) {
+  let height = shape.length;
+
+  out: for (let i = 0; i < shape.length; i++) {
+    for (let j = 0; j < shape[0].length; j++) {
+      if (shape[i][j]) break out;
+    }
+    height--;
+
+    if (height === 0) return height;
+  }
+
+  out: for (let i = shape.length - 1; i >= 0; i--) {
+    for (let j = 0; j < shape[0].length; j++) {
+      if (shape[i][j]) break out;
+    }
+    height--;
+  }
+
+  return height;
 }
 
 function getStartXShift(shape) {
@@ -379,6 +452,10 @@ function move(direction) {
   piece.moved = true;
 }
 
+function drop() {
+  while (canShift("down")) move("down");
+}
+
 function rotate(shift) {
   piece.x += shift.x;
   piece.y += shift.y;
@@ -423,32 +500,71 @@ function doesIntersect(projection, state) {
 }
 
 function drawPiece() {
-  const s = blockSize;
   for (let i = 0; i < piece.shape.length; i++) {
     for (let j = 0; j < piece.shape[0].length; j++) {
       if (piece.shape[i][j]) {
-        ctx.fillStyle = colors[piece.shape[i][j]];
-        ctx.fillRect((piece.x + j) * s, (piece.y + i) * s, s, s);
+        drawSquare(
+          glass,
+          (piece.x + j) * blockSize,
+          (piece.y + i) * blockSize,
+          blockSize,
+          colors[piece.shape[i][j]]
+        )
       }
     }
   }
 }
 
+function drawSquare(canvas, x, y, size, color) {
+  canvas.ctx.fillStyle = color;
+  canvas.ctx.fillRect(x, y, size, size);
+
+  canvas.ctx.lineWidth = blockSize * lineRatio;
+  canvas.ctx.strokeStyle = colors.line;
+  canvas.ctx.strokeRect(x, y, size, size);
+}
+
 function drawState() {
-  const s = blockSize;
   for (let i = 0; i < state.length; i++) {
     for (let j = 0; j < state[0].length; j++) {
       if (state[i][j]) {
-        ctx.fillStyle = colors[state[i][j]];
-        ctx.fillRect(j * s, i * s, s, s);
+        drawSquare(
+          glass,
+          j * blockSize,
+          i * blockSize,
+          blockSize,
+          colors[state[i][j]]
+        );
       }
     }
   }
 }
 
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  glass.ctx.clearRect(0, 0, glass.width, glass.height);
 
   drawState();
   drawPiece();
+}
+
+function drawNext() {
+  const {shape} = cropShape(nextPiece.shape);
+
+  updateNextSizing();
+
+  next.ctx.clearRect(0, 0, next.width, next.height);
+
+  for (let i = 0; i < shape.length; i++) {
+    for (let j = 0; j < shape[0].length; j++) {
+      if (shape[i][j]) {
+        drawSquare(
+          next,
+          j * blockSize,
+          i * blockSize,
+          blockSize,
+          colors[shape[i][j]],
+        )
+      }
+    }
+  }
 }

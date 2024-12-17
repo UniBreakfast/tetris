@@ -8,7 +8,7 @@
 
   <!--<link rel="stylesheet" href="reset.css">-->
   <!--<link rel="stylesheet" href="base.css">-->
-  <!--<link rel="stylesheet" href="style.css">-->
+  <link rel="stylesheet" href="style.css">
   <!--<script type="module" src="app.js"></script>-->
   <script src="script.js" defer></script>
 
@@ -16,12 +16,21 @@
 </head>
 
 <body id="body">
-  <h1 style="text-align: center">
+  <h1>
     <output id="score">0</output>
-    <span id="multiplier" hidden>
-      &nbsp; complete row now to get <output id="mult">1</output>
-    </span>
   </h1>
+
+  <canvas id="glass"></canvas>
+
+  <canvas id="next"></canvas>
+
+  <h2 id="reward">
+    next row reward is <output id="multiplier">1</output>
+  </h2>
+
+  <div id="pause" hidden>
+    <h2>Paused</h2>
+  </div>
 </body>
 
 </html>
