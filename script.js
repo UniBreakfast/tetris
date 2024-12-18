@@ -182,23 +182,32 @@ function updateNextSizing() {
 }
 
 function handleKeyDown(e) {
-  if (!pauseCover.hidden) {
-    togglePause();
-    handleKeyDown(e);
-  } else if (e.key === "ArrowLeft" && canShift("left")) {
+  if (e.key === "ArrowLeft" && canShift("left")) {
+    if (!pauseCover.hidden) togglePause();
+
     move("left");
+    
   } else if (e.key === "ArrowRight" && canShift("right")) {
+    if (!pauseCover.hidden) togglePause();
+
     move("right");
+
   } else if (e.key === "ArrowDown" && canShift("down")) {
+    if (!pauseCover.hidden) togglePause();
+
     move("down");
+
   } else if (e.key === "ArrowUp") {
+    if (!pauseCover.hidden) togglePause();
+
     const requiredShift = canRotate();
 
-    if (requiredShift) {
-      rotate(requiredShift);
-    }
+    if (requiredShift) rotate(requiredShift);
+
   } else if (e.key === "Space" || e.key === ' ') {
-    drop();
+    if (!pauseCover.hidden) togglePause();
+    else drop();
+    
   } else if (e.key === "Escape" || e.code === 'KeyP') {
     togglePause();
   } else {
