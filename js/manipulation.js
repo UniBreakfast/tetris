@@ -4,6 +4,7 @@ import { pauseCover } from "./elements.js";
 import { state } from "./state.js";
 import { canShift, canRotate } from "./checks.js";
 import { draw } from "./drawing.js";
+import { togglePause } from "../app.js";
 
 onkeydown = handleKeyDown;
 

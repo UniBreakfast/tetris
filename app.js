@@ -1,3 +1,5 @@
+export { togglePause };
+
 import { config } from './js/config.js';
 import { canShift, canBurrow } from './js/checks.js';
 import { state, evaluateLines } from './js/state.js';
@@ -5,6 +7,7 @@ import { mole } from './js/shapes.js';
 import { move, freeze } from './js/manipulation.js';
 import { draw, drawNext } from './js/drawing.js';
 import { getNextPiece } from './js/generation.js';
+import {  pauseCover } from './js/elements.js';
 
 let intervalId = null;
 
