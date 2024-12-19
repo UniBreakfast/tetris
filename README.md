@@ -26,3 +26,5 @@ Starting reward for a filled and removed line is 1. As soon as a filled line is 
 ![image](https://github.com/user-attachments/assets/617e79bf-a5d5-4951-b384-be8a139a38b8)
 
 ![image](https://github.com/user-attachments/assets/1a9d953b-8a0f-4430-ae75-e7f14d8f395c)
+
+![image](https://github.com/user-attachments/assets/03430da9-342b-4216-955a-69294ee83a4b)
